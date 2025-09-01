@@ -10,6 +10,7 @@ class ESClient:
     def __init__(self):
         self.es = Elasticsearch(
             hosts=[config.ES_HOST],
+            request_timeout=30
             # http_auth=(config.ES_USER, config.ES_PASSWORD)
         )
         if not self.es.ping():
@@ -17,6 +18,8 @@ class ESClient:
             raise ConnectionError("Elasticsearch cluster is down!")
         else:
             logger.info("Connected to Elasticsearch cluster")
+        
+    
 
 
 

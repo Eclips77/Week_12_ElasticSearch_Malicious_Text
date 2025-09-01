@@ -1,12 +1,15 @@
+from json import load
 from venv import logger
 from elasticsearch import Elasticsearch,helpers
 from ..utils import config
 from .es_client import ESClient
 import logging
 import pandas as pd
+from ..utils.loader import DataLoader
+from src.services import es_client
+
 logger = logging.getLogger(__name__)
-
-
+logging.basicConfig(level=logging.INFO)
 class ESCrud():
     """"
     crud operations for Elasticsearch index management.
@@ -81,3 +84,10 @@ class ESCrud():
 
 
 
+if __name__ == "__main__":
+    es_crud = ESCrud()
+    data = DataLoader().load_from_csv(config.CSV_FILE_PATH)
+    es_crud.create_index()
+    es_crud.index_data(data)
+    # es = ESClient().es
+    # print(es.info())

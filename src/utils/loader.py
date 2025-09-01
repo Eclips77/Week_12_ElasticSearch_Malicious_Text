@@ -4,31 +4,31 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 class DataLoader:
-    """"
-    loader class for svc files or txt
+    """
+    loader class for csv files or txt
     """
     @staticmethod
     def load_from_csv(file_path: str)->pd.DataFrame:
-        """"
+        """
         a method to load data from csv file
         """
         try:
-            df = pd.DataFrame(file_path)
-            logger.info("data loaded secssefuly")
+            df = pd.read_csv(file_path)
+            logger.info("data loaded successfully")
             return df
         except Exception as e:
             logger.error(f"error loading csv file {e}")
-            raise e
+            raise
 
     @staticmethod
     def load_from_txt(file_path: str)->pd.DataFrame:
-        """"
-        a method to load data from txt file
+        """
+        a method to load data from txt file (tab-delimited)
         """
         try:
             df = pd.read_csv(file_path, delimiter="\t", header=None)
-            logger.info("data loaded secssefuly")
+            logger.info("data loaded successfully")
             return df
         except Exception as e:
             logger.error(f"error loading txt file {e}")
-            raise e
+            raise
