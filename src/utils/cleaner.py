@@ -13,7 +13,6 @@ class DataFrameNormalizer:
         date_col: str = "CreateDate", 
         bool_col: str = "Antisemitic",
         text_col: str = "text",
-        weapons_col: str = "weapons"
     ):
         """
         Initialize the normalizer with column names.
@@ -35,7 +34,6 @@ class DataFrameNormalizer:
         self.date_col = date_col
         self.bool_col = bool_col
         self.text_col = text_col
-        self.weapons_col = weapons_col
     
     def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -57,8 +55,6 @@ class DataFrameNormalizer:
         out = self._normalize_date_column(out)
         out = self._normalize_bool_column(out)
         out = self._normalize_id_column(out)
-        out = self._normalize_text_column(out)
-        out = self._normalize_weapons_column(out)
         
         return out
     
@@ -102,24 +98,6 @@ class DataFrameNormalizer:
         out[self.id_col] = out[self.id_col].map(self._to_stable_str)
         return out
     
-    def _normalize_text_column(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Normalize text column to string format."""
-        if self.text_col not in df.columns:
-            return df
-            
-        out = df.copy()
-        out[self.text_col] = out[self.text_col].astype(str)
-        return out
-    
-    def _normalize_weapons_column(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Normalize weapons column to list of strings."""
-        if self.weapons_col not in df.columns:
-            return df
-            
-        out = df.copy()
-        out[self.weapons_col] = out[self.weapons_col].map(self._to_list_str)
-        return out
-    
     def _to_bool(self, v: Any) -> bool:
         """Convert value to boolean, handling various formats."""
         if pd.isna(v):
@@ -160,6 +138,3 @@ class DataFrameNormalizer:
         return [str(v)]
 
 
-# Example usage:
-# normalizer = DataFrameNormalizer()
-# cleaned_df = normalizer.normalize(your_dataframe)
