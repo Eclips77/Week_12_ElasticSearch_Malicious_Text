@@ -28,7 +28,7 @@ class ESCrud():
         except Exception as e:
             logger.error(f"Error creating index '{self.index}': {e}")
     
-    def index_data(self,data:pd.DataFrame):
+    def index_data(self,data:list[dict]):
         """"
         Index data into the Elasticsearch index."""
         try:
@@ -37,7 +37,7 @@ class ESCrud():
                     "_index": self.index,
                     "_source": record
                 }
-                for record in data.to_dict(orient='records')
+                for record in data
             ]
             helpers.bulk(self.es, actions)
             logger.info(f"Indexed {len(actions)} records into '{self.index}'.")
