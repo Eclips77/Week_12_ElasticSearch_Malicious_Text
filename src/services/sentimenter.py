@@ -1,6 +1,5 @@
 import os
 import logging
-from typing import List, Dict, Any
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 nltk.download("vader_lexicon")
@@ -18,7 +17,7 @@ class SentimentEnhancer:
             logger.error("Make sure vader_lexicon is installed in the Docker image")
             raise
 
-    def enrich_documents(self, documents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def enrich_documents(self, documents,column):
         """
         Enrich documents with sentiment analysis and word count
 
@@ -31,7 +30,7 @@ class SentimentEnhancer:
         enriched_docs = []
         for doc in documents:
             try:
-                text = doc.get("Cleaned_Text", "")
+                text = doc.get(column, "")
                 sentiment_scores = self.sentiment_analyzer.polarity_scores(text)
                 sentiment_scores = self._point_sentiment(sentiment_scores['compound'])
                 enriched_doc = {
