@@ -14,7 +14,7 @@ ES_MAPPING = {
     "properties": {
       "TweetID": { "type": "keyword", "ignore_above": 32766 },
       "CreateDate": { "type": "text" },
-      "Antisemitic": { "type": "keyword" },
+      "Antisemitic": { "type": "boolean" },
       "text": {
         "type": "text",
         "fields": {
