@@ -1,32 +1,50 @@
-import csv
-from elasticsearch import helpers, Elasticsearch
-from ..utils import config
-
+import pandas as pd
+import logging
+logger = logging.getLogger(__name__)
 
 class DataLoader:
-    def __init__(self, es_client: Elasticsearch):
-        self.es_client = es_client
+    """"
 
-    def load_data_from_csv(self, index_name: str):
-        with open(config.CSV_FILE_PATH, mode='r', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
-            actions = [
-                {
-                    "_index": index_name,
-                    "_source": row
-                }
-                for row in reader
-            ]
-            helpers.bulk(self.es_client, actions)
+    """
+    @staticmethod
+    def load_data(file_path:str)-> pd.DataFrame:
+        """Load a CSV file.
 
-    def load_data_from_txt(self, index_name: str):
-        with open(config.TXT_FILE_PATH, mode='r', encoding='utf-8') as file:
-            lines = file.readlines()
-            actions = [
-                {
-                    "_index": index_name,
-                    "_source": {"text": line.strip()}
-                }
-                for line in lines
-            ]
-            helpers.bulk(self.es_client, actions)
+        Args:
+            file_path (str): Path to the CSV file.
+
+        Returns:
+            pandas.DataFrame: Loaded DataFrame.
+
+        Usage:
+            df = DataLoader.load_data("data.csv")
+        """
+        try:
+            df = pd.read_csv(file_path)
+            logger.info("data loaded secssefuly")
+            return df
+        except Exception as e:
+            logger.error(f"Error loading data: {e}")
+            raise
+
+    @staticmethod
+    def load_txt(file_path:str)->list:
+        """Load a TXT file.
+
+        Args:
+            file_path (str): Path to the TXT file.
+
+        Returns:
+            list: List of lines from the TXT file.
+
+        Usage:
+            lines = DataLoader.load_txt("data.txt")
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                lines = file.readlines()
+            logger.info("TXT data loaded secssefuly")
+            return lines
+        except Exception as e:
+            logger.error(f"Error loading TXT data: {e}")
+            raise
