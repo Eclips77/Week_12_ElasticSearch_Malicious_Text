@@ -1,5 +1,4 @@
 import os
-from ..utils import config
 import logging
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer

@@ -57,9 +57,9 @@ async def get_tweets_with_multiple_weapons(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving tweets with multiple weapons: {str(e)}")
 
-def main():
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# def main():
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
