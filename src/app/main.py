@@ -15,7 +15,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Malicious Text Detection API",
-    description="API for detecting malicious text and weapons in tweets using Elasticsearch",
     version="1.0.0",
     lifespan=lifespan
 )
