@@ -13,7 +13,8 @@ ES_MAPPING = {
   "mappings": {
     "properties": {
       "TweetID": { "type": "keyword", "ignore_above": 32766 },
-      "CreateDate": { "type": "text" },
+      "CreateDate": { "type": "date","format": "yyyy-MM-dd HH:mm:ss"
+,"ignore_malfromed":True },
       "Antisemitic": { "type": "boolean" },
       "text": {
         "type": "text",
