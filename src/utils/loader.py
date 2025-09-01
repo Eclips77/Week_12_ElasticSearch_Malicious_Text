@@ -18,9 +18,9 @@ class DataLoader:
         """
         try:
             with open(file_path, "r", encoding="utf-8") as f:
-                data = csv.DictReader(f)
+                data = list(csv.DictReader(f))
                 logger.info("CSV file loaded successfully.")
-            return list(data)
+            return data
         except Exception as e:  
             logger.error(f"Error loading CSV file: {e}")
             raise

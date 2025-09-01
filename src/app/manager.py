@@ -3,50 +3,38 @@ from ..utils import config
 from ..services.es_crud import ESCrud
 from ..services.sentimenter import SentimentEnhancer
 from ..services.weapon_finder import WeaponsDetector
-import logging
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class DataManager:
     def __init__(self):
         self.es_crud = ESCrud()
         self.sentiment_enhancer = SentimentEnhancer()
-        self.weapons_detector = WeaponsDetector()
+        self.weapons_detector = None
 
-    def _load_tweets_data(self):
-        tweets_data = DataLoader.load_csv(config.CSV_FILE_PATH)
-        return tweets_data
-    
-    def index_to_es(self):
-        self.es_crud.create_index()  # Added missing parentheses
-        self.es_crud.index_data(self._load_tweets_data())
-
-    def add_sentiment(self):
-        self.sentiment_enhancer.enrich_documents()
-    
-    def detect_weapons(self):
-        self.weapons_detector.detect_weapons()
-    
     def run_full_pipeline(self):
-        """Execute the complete project workflow"""
-        logger.info("Starting full data processing pipeline")
+        tweets_data = DataLoader.load_csv(config.CSV_FILE_PATH)
         
-        try:
-            # Step 1: Index data to Elasticsearch
-            logger.info("Step 1: Indexing data to Elasticsearch")
-            self.index_to_es()
-            
-            # Step 2: Add sentiment analysis
-            logger.info("Step 2: Adding sentiment analysis")
-            self.add_sentiment()
-            
-            # Step 3: Detect weapons/malicious content
-            logger.info("Step 3: Detecting weapons/malicious content")
-            self.detect_weapons()
-            
-            logger.info("Pipeline completed successfully")
-            
-        except Exception as e:
-            logger.error(f"Pipeline failed: {str(e)}")
-            raise
+        self.es_crud.create_index()
+        self.es_crud.index_data(tweets_data)
+        
+        indexed_data = self.es_crud.search_data({"match_all": {}})
+        
+        sentiment_enriched = self.sentiment_enhancer.enrich_documents(indexed_data)
+        self.es_crud.index_data(sentiment_enriched)
+        
+        updated_data = self.es_crud.search_data({"match_all": {}})
+        
+        if self.weapons_detector:
+            weapons_enriched = self.weapons_detector.detect_weapons(updated_data)
+            self.es_crud.index_data(weapons_enriched)
+        
+        return len(tweets_data)
+
+    def setup_weapons_detector(self):
+        weapons_list = DataLoader.load_txt(config.WEAPONS_FILE_PATH)
+        self.weapons_detector = WeaponsDetector(weapons_list)
+
+    def search_tweets(self, query):
+        return self.es_crud.search_data(query)
+
+    def delete_index_data(self, query):
+        self.es_crud.delete_data(query)

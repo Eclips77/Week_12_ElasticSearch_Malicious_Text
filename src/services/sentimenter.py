@@ -1,4 +1,5 @@
 import os
+from ..utils import config
 import logging
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -59,7 +60,7 @@ class SentimentEnhancer:
         else:
             return "neutral"
 
-
+    
 # if __name__ == "__main__":
 #     sample_docs = [
 #         {"_id": 1, "Cleaned_Text": "I love programming!"},
