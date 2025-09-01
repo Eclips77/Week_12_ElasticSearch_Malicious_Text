@@ -9,7 +9,7 @@ ES_HOST = os.getenv("ES_HOST","http://localhost:9200")
 
 ES_INDEX = os.getenv("ES_INDEX","tweets")
 
-ES_MAPPING ={
+ES_MAPPING = os.getenv("ES_MAPPING",{
   "mappings": {
     "properties": {
       "TweetID": { "type": "keyword", "ignore_above": 32766 },
@@ -25,4 +25,4 @@ ES_MAPPING ={
       "weapons": { "type": "keyword" }
     }
   }
-}
+})
