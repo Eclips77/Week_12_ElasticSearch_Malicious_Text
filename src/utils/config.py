@@ -44,3 +44,14 @@ ES_MAPPING = {
   }
 }
 
+DELETE_QUERY = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"Antisemitic": False}},
+                        {"bool": {"must_not": {"exists": {"field": "weapons"}}}},
+                        {"bool": {"must_not": {"term": {"sentiment": "negative"}}}}
+                    ]
+                }
+            }
+        }
