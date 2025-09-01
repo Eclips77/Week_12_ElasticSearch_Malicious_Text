@@ -9,15 +9,20 @@ ES_HOST = os.getenv("ES_HOST","http://localhost:9200")
 
 ES_INDEX = os.getenv("ES_INDEX","tweets")
 
-ES_MAPPING = {
-    "mappings": {
-        "properties": {
-            "TweetID": {"type": "keyword"},
-            "CreateDate": {"type": "date"},
-            "Antisemitic": {"type": "boolean"},
-            "text": {"type": "text"},
-            "sentiment": {"type": "keyword"},
-            "weapons": {"type": "array", "items": {"type": "keyword"}},
+ES_MAPPING ={
+  "mappings": {
+    "properties": {
+      "TweetID": { "type": "keyword", "ignore_above": 32766 },
+      "CreateDate": { "type": "date", "format": "strict_date_optional_time||epoch_millis" },
+      "Antisemitic": { "type": "boolean" },
+      "text": {
+        "type": "text",
+        "fields": {
+          "raw": { "type": "keyword", "ignore_above": 32766 }
         }
+      },
+      "sentiment": { "type": "keyword" }, 
+      "weapons": { "type": "keyword" }
     }
+  }
 }
