@@ -1,9 +1,16 @@
 import os
 # from typing import Dict, Any
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-CSV_FILE_PATH = os.getenv("CSV_PATH","C:/Users/brdwn/Desktop/my_projects/Python/Elastic/Week_12_ElasticSearch_Malicious_Text/data/tweets_injected 3.csv")
-WEAPONS_FILE_PATH = os.getenv("WEAPONS_PATH","C:/Users/brdwn/Desktop/my_projects/Python/Elastic/Week_12_ElasticSearch_Malicious_Text/data/weapon_list (1).txt")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+CSV_FILE_PATH = os.path.join(DATA_DIR, "weapon_list.txt")
+WEAPONS_FILE_PATH = os.path.join(DATA_DIR, "another_file.csv")
+
+
+# CSV_FILE_PATH = os.getenv("CSV_PATH","C:/Users/brdwn/Desktop/my_projects/Python/Elastic/Week_12_ElasticSearch_Malicious_Text/data/tweets_injected 3.csv")
+# WEAPONS_FILE_PATH = os.getenv("WEAPONS_PATH","C:/Users/brdwn/Desktop/my_projects/Python/Elastic/Week_12_ElasticSearch_Malicious_Text/data/weapon_list (1).txt")
 
 ES_HOST = os.getenv("ES_HOST","http://elasticsearch:9200")
 
