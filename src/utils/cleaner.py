@@ -58,9 +58,8 @@ class DataFrameNormalizer:
         
         return out
     
-    def _handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _handle_missing_values(self, out: pd.DataFrame) -> pd.DataFrame:
         """Handle NaN values across the DataFrame."""
-        out = df.copy()
         
         if self.text_col in out.columns:
             out[self.text_col] = out[self.text_col].fillna("")
@@ -70,7 +69,7 @@ class DataFrameNormalizer:
            
         return out
     
-    def _normalize_date_column(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _normalize_date_column(self, out: pd.DataFrame) -> pd.DataFrame:
         """Normalize date column to ISO-8601 UTC format."""
         if self.date_col not in df.columns:
             return df
@@ -80,7 +79,7 @@ class DataFrameNormalizer:
         out[self.date_col] = s.dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return out
     
-    def _normalize_bool_column(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _normalize_bool_column(self, out: pd.DataFrame) -> pd.DataFrame:
         """Normalize boolean column values."""
         if self.bool_col not in df.columns:
             return df
@@ -89,7 +88,7 @@ class DataFrameNormalizer:
         out[self.bool_col] = out[self.bool_col].map(self._to_bool)
         return out
     
-    def _normalize_id_column(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _normalize_id_column(self, out: pd.DataFrame) -> pd.DataFrame:
         """Normalize ID column to stable string format."""
         if self.id_col not in df.columns:
             return df
