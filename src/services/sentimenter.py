@@ -17,7 +17,7 @@ class SentimentEnhancer:
             logger.error("Make sure vader_lexicon is installed in the Docker image")
             raise
 
-    def enrich_documents(self, documents,column):
+    def enrich_documents(self, documents:list[dict],column:str="text")->list[dict]:
         """
         Enrich documents with sentiment analysis and word count
 
@@ -41,6 +41,7 @@ class SentimentEnhancer:
             except Exception as e:
                 logger.error(f"Error enriching document {doc.get('_id')}: {e}")
                 continue
+        logger.info(f"Enriched {len(enriched_docs)} documents with sentiment analysis.")
         return enriched_docs
 
     def _point_sentiment(self, score: float) -> str:

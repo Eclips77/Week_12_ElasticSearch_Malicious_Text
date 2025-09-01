@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch,helpers
 from ..utils import config
 from .es_client import ESClient
 import logging
-import pandas as pd
+# import pandas as pd
 from ..utils.loader import DataLoader
 
 logger = logging.getLogger(__name__)
@@ -44,56 +44,34 @@ class ESCrud():
         except Exception as e:
             logger.error(f"Error indexing data into '{self.index}': {e}")
 
-    def update_data(self,field_name:str,update_value:str,query_value:str):
-        """
-        a method to update data in elastic."""
+    def delete_data(self,query:dict):
+        """"
+        Delete data from the Elasticsearch index based on a query."""
         try:
-            script = {
-                "source": f"ctx._source.{field_name} = params.value",
-                "lang": "painless",
-                "params": {"value": update_value}
-            }
-            query = {
-                "query": {
-                    "match": {
-                        field_name: query_value
-                    }
-                }
-            }
-            response = self.es.update_by_query(index=self.index, body={**query, "script": script})
-            logger.info(f"Updated {response['updated']} records in '{self.index}'.")
+            response = self.es.delete_by_query(index=self.index, body={"query": query})
+            deleted = response.get('deleted', 0)
+            logger.info(f"Deleted {deleted} records from '{self.index}'.")
         except Exception as e:
-            logger.error(f"Error updating data in '{self.index}': {e}")
+            logger.error(f"Error deleting data from '{self.index}': {e}")
 
-    def delete_data(self):
-        """
-         a method to delete data in elastic."""
-        pass
-    def read_data(self)->pd.DataFrame:
-        """
-        a method to read data from elastic."""
+    def search_data(self,query:dict)->list[dict]:
+        """"
+        Search data in the Elasticsearch index based on a query."""
         try:
-            response = self.es.search(index=self.index, body={"query": {"match_all": {}}})
-            hits = response['hits']['hits']
-            data = [hit['_source'] for hit in hits]
-            df = pd.DataFrame(data)
-            logger.info(f"Read {len(df)} records from {self.index}.")
-            return df
+            response = self.es.search(index=self.index, body={"query": query})
+            hits = response.get('hits', {}).get('hits', [])
+            results = [hit['_source'] for hit in hits]
+            logger.info(f"Found {len(results)} records in '{self.index}'.")
+            return results
         except Exception as e:
-            logger.error(f"Error reading data from '{self.index}': {e}")
-            return pd.DataFrame()
-        
-    def search_data(self):
-        """
-        a method to search a specific data in elastic."""
-        pass
-
+            logger.error(f"Error searching data in '{self.index}': {e}")
+            return []
 
 
 
 if __name__ == "__main__":
     es_crud = ESCrud()
-    data = DataLoader().load_from_csv(config.CSV_FILE_PATH)
+    data = DataLoader().load_csv(config.CSV_FILE_PATH)
     es_crud.create_index()
     es_crud.index_data(data)
     # es = ESClient().es
