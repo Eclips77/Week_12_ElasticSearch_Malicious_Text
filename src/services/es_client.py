@@ -1,4 +1,4 @@
-from elasticsearch import Elasticsearch,helpers
+from elasticsearch import Elasticsearch
 import logging
 from ..utils import config
 
