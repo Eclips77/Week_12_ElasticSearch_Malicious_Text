@@ -29,12 +29,6 @@ class ESCrud():
             logger.error(f"Error creating index '{self.index}': {e}")
     
     def index_data(self,data:list[dict]):
-        """"
-        Index data into the Elasticsearch index.
-        Args:
-            data (List[Dict[str, Any]]): List of documents to index
-        Returns:
-            None"""
         try:
             actions = [
                 {
@@ -43,10 +37,20 @@ class ESCrud():
                 }
                 for record in data
             ]
-            helpers.bulk(self.es, actions)
-            logger.info(f"Indexed {len(actions)} records into '{self.index}'.")
+            response = helpers.bulk(self.es, actions, raise_on_error=False, raise_on_exception=False)
+            success_count = response[0]
+            failed_items = response[1]
+            
+            if failed_items and isinstance(failed_items, list):
+                logger.error(f"Failed to index {len(failed_items)} documents")
+                for item in failed_items[:5]:
+                    logger.error(f"Error detail: {item}")
+            
+            logger.info(f"Successfully indexed {success_count} records into '{self.index}'.")
+            return success_count
         except Exception as e:
             logger.error(f"Error indexing data into '{self.index}': {e}")
+            return 0
 
     def delete_data(self,query:dict):
         """"
@@ -62,15 +66,9 @@ class ESCrud():
         except Exception as e:
             logger.error(f"Error deleting data from '{self.index}': {e}")
 
-    def search_data(self,query:dict)->list[dict]:
-        """"
-        Search data in the Elasticsearch index based on a query.
-        Args:
-            query (dict): Elasticsearch query DSL
-        Returns:
-            List[Dict[str, Any]]: List of documents matching the query"""
+    def search_data(self,query:dict, size:int=10000)->list[dict]:
         try:
-            response = self.es.search(index=self.index, body={"query": query})
+            response = self.es.search(index=self.index, body={"query": query, "size": size})
             hits = response.get('hits', {}).get('hits', [])
             results = [hit['_source'] for hit in hits]
             logger.info(f"Found {len(results)} records in '{self.index}'.")
@@ -81,10 +79,10 @@ class ESCrud():
 
 
 
-if __name__ == "__main__":
-    es_crud = ESCrud()
-    data = DataLoader().load_csv(config.CSV_FILE_PATH)
-    es_crud.create_index()
-    es_crud.index_data(data)
+# if __name__ == "__main__":
+#     es_crud = ESCrud()
+#     data = DataLoader().load_csv(config.CSV_FILE_PATH)
+#     es_crud.create_index()
+#     es_crud.index_data(data)
     # es = ESClient().es
     # print(es.info())

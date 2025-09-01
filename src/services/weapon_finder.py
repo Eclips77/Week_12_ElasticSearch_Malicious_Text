@@ -30,7 +30,6 @@ class WeaponsDetector:
                     "weapons": detected_weapons
                 }
                 enriched_docs.append(enriched_doc)
-                logger.info(f"Processed document {doc.get('_id')}: Detected weapons - {detected_weapons}")
             except Exception as e:
                 logger.error(f"Error processing document {doc.get('_id')}: {e}")
                 continue
