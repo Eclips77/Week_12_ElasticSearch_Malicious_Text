@@ -27,7 +27,7 @@ class WeaponsDetector:
                 detected_weapons = [weapon for weapon in self.weapons_list if weapon in text]
                 enriched_doc = {
                     **doc,
-                    "Weapons_Detected": detected_weapons
+                    "weapons": detected_weapons
                 }
                 enriched_docs.append(enriched_doc)
                 logger.info(f"Processed document {doc.get('_id')}: Detected weapons - {detected_weapons}")

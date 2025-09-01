@@ -12,18 +12,35 @@ ES_INDEX = os.getenv("ES_INDEX","tweets")
 ES_MAPPING = {
   "mappings": {
     "properties": {
-      "TweetID": { "type": "keyword", "ignore_above": 32766 },
-      "CreateDate": { "type": "date","format": "yyyy-MM-dd HH:mm:ss"
-,"ignore_malfromed":True },
-      "Antisemitic": { "type": "boolean" },
+      "TweetID": { 
+        "type": "text"
+        # "ignore_above": 32766 
+      },
+      "CreateDate": { 
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ssXXX||strict_date_optional_time||epoch_millis",
+        "ignore_malformed": True,
+        "null_value": None
+      },
+      "Antisemitic": { 
+        "type": "boolean" 
+      },
       "text": {
         "type": "text",
         "fields": {
-          "raw": { "type": "keyword", "ignore_above": 32766 }
+          "raw": { 
+            "type": "keyword", 
+            "ignore_above": 32766 
+          }
         }
       },
-      "sentiment": { "type": "keyword" }, 
-      "weapons": { "type": "keyword" }
+      "sentiment": { 
+        "type": "keyword" 
+      }, 
+      "weapons": { 
+        "type": "keyword"
+      }
     }
   }
 }
+

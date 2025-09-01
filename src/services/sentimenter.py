@@ -36,7 +36,7 @@ class SentimentEnhancer:
                 sentiment_scores = self._point_sentiment(sentiment_scores['compound'])
                 enriched_doc = {
                     **doc,
-                    "Sentiment": sentiment_scores,
+                    "sentiment": sentiment_scores,
                 }
                 enriched_docs.append(enriched_doc)
             except Exception as e:

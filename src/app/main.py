@@ -1,5 +1,6 @@
 from .manager import DataManager
 
+
 def main():
     manager = DataManager()
     
