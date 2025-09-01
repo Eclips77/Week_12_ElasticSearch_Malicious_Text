@@ -15,6 +15,8 @@ class DataLoader:
         try:
             df = pd.read_csv(file_path)
             logger.info("data loaded successfully")
+            s = pd.to_datetime(df["CreateDate"], errors="coerce", utc=True)
+            df["CreateDate"] = s.dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
             return df
         except Exception as e:
             logger.error(f"error loading csv file {e}")

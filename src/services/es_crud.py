@@ -1,13 +1,10 @@
-from json import load
-from venv import logger
 from elasticsearch import Elasticsearch,helpers
 from ..utils import config
 from .es_client import ESClient
 import logging
 import pandas as pd
 from ..utils.loader import DataLoader
-from src.services import es_client
-
+from ..utils.cleaner import normalize_for_elasticsearch
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 class ESCrud():
@@ -31,21 +28,33 @@ class ESCrud():
         except Exception as e:
             logger.error(f"Error creating index '{self.index}': {e}")
     
-    def index_data(self,data:pd.DataFrame):
-        """"
-        Index data into the Elasticsearch index."""
+    def index_data(self, data: pd.DataFrame):
+        """
+        Index data into the Elasticsearch index.
+        """
         try:
             actions = [
                 {
                     "_index": self.index,
                     "_source": record
                 }
-                for record in data.to_dict(orient='records')
+                for record in data.to_dict(orient="records")
             ]
-            helpers.bulk(self.es, actions)
-            logger.info(f"Indexed {len(actions)} records into '{self.index}'.")
+            success, errors = helpers.bulk(
+                self.es,
+                actions,
+                raise_on_error=False,
+                stats_only=False
+            )
+            logger.info(f"Indexed {success} records into '{self.index}'.")
+            if errors:
+                logger.error(f"{len(errors)} records failed to index.")
+                # Print a sample of the errors for debugging
+                for err in errors[:5]:
+                    logger.error(err)
         except Exception as e:
             logger.error(f"Error indexing data into '{self.index}': {e}")
+            raise
 
     def update_data(self,field_name:str,update_value:str,query_value:str):
         """
@@ -87,6 +96,7 @@ class ESCrud():
 if __name__ == "__main__":
     es_crud = ESCrud()
     data = DataLoader().load_from_csv(config.CSV_FILE_PATH)
+    data = normalize_for_elasticsearch(data)
     es_crud.create_index()
     es_crud.index_data(data)
     # es = ESClient().es
