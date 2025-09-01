@@ -78,39 +78,12 @@ class DataFrameNormalizer:
         out[self.date_col] = s.dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return out
     
-    def _normalize_bool_column(self, out: pd.DataFrame) -> pd.DataFrame:
-        """Normalize boolean column values."""
-        if self.bool_col not in out.columns:
-            return out
-            
-        out[self.bool_col] = out[self.bool_col].map(self._to_bool)
-        return out
-    
     def _normalize_id_column(self, out: pd.DataFrame) -> pd.DataFrame:
         """Normalize ID column to stable string format."""
         if self.id_col not in out.columns:
             return out
         out[self.id_col] = out[self.id_col].map(self._to_stable_str)
         return out
-    
-    def _to_bool(self, v: Any) -> bool:
-        """Convert value to boolean, handling various formats."""
-        if pd.isna(v):
-            return False
-        if isinstance(v, bool):
-            return v
-        try:
-            n = pd.to_numeric(v, errors="coerce")
-            if not pd.isna(n):
-                return bool(int(n))
-        except Exception:
-            pass
-        s = str(v).strip().lower()
-        if s in {"true", "t", "yes", "y"}:
-            return True
-        if s in {"false", "f", "no", "n"}:
-            return False
-        return False
     
     def _to_stable_str(self, v: Any) -> Optional[str]:
         """Convert value to stable string format."""

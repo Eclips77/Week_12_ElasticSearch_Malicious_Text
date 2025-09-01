@@ -69,10 +69,20 @@ class ESCrud():
         """
          a method to delete data in elastic."""
         pass
-    def read_data(self):
+    def read_data(self)->pd.DataFrame:
         """
         a method to read data from elastic."""
-        pass
+        try:
+            response = self.es.search(index=self.index, body={"query": {"match_all": {}}})
+            hits = response['hits']['hits']
+            data = [hit['_source'] for hit in hits]
+            df = pd.DataFrame(data)
+            logger.info(f"Read {len(df)} records from {self.index}.")
+            return df
+        except Exception as e:
+            logger.error(f"Error reading data from '{self.index}': {e}")
+            return pd.DataFrame()
+        
     def search_data(self):
         """
         a method to search a specific data in elastic."""
