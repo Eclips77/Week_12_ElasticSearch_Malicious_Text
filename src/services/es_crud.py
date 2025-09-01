@@ -11,6 +11,7 @@ class ESCrud:
     """
     CRUD operations for Elasticsearch index management.
     """
+
     def __init__(self):
         self.es = ESClient().es
         self.index = config.ES_INDEX
@@ -44,12 +45,13 @@ class ESCrud:
                 }
                 if "_id" in record:
                     action["_id"] = record["_id"]
-                    record.pop("_id", None)  
+                    record.pop("_id", None)
                 actions.append(action)
 
             response = helpers.bulk(
                 self.es,
                 actions,
+                refresh=True,
                 raise_on_error=False,
                 raise_on_exception=False
             )
@@ -84,7 +86,14 @@ class ESCrud:
         Returns both _id and _source for each document.
         """
         try:
-            response = self.es.search(index=self.index, body={"query": query, "size": size})
+            if not query:
+                query = {"match_all": {}}
+
+            response = self.es.search(
+                index=self.index,
+                body={"query": query},
+                size=size
+            )
             hits = response.get('hits', {}).get('hits', [])
             results = [{"_id": hit["_id"], **hit["_source"]} for hit in hits]
             logger.info(f"Found {len(results)} records in '{self.index}'.")
