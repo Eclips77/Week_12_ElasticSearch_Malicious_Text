@@ -30,7 +30,11 @@ class ESCrud():
     
     def index_data(self,data:list[dict]):
         """"
-        Index data into the Elasticsearch index."""
+        Index data into the Elasticsearch index.
+        Args:
+            data (List[Dict[str, Any]]): List of documents to index
+        Returns:
+            None"""
         try:
             actions = [
                 {
@@ -46,7 +50,11 @@ class ESCrud():
 
     def delete_data(self,query:dict):
         """"
-        Delete data from the Elasticsearch index based on a query."""
+        Delete data from the Elasticsearch index based on a query.
+        Args:
+            query (dict): Elasticsearch query DSL
+        Returns:
+            None"""
         try:
             response = self.es.delete_by_query(index=self.index, body={"query": query})
             deleted = response.get('deleted', 0)
@@ -56,7 +64,11 @@ class ESCrud():
 
     def search_data(self,query:dict)->list[dict]:
         """"
-        Search data in the Elasticsearch index based on a query."""
+        Search data in the Elasticsearch index based on a query.
+        Args:
+            query (dict): Elasticsearch query DSL
+        Returns:
+            List[Dict[str, Any]]: List of documents matching the query"""
         try:
             response = self.es.search(index=self.index, body={"query": query})
             hits = response.get('hits', {}).get('hits', [])
