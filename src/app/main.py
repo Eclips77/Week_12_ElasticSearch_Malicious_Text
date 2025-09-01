@@ -2,6 +2,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
 from typing import List, Dict, Any
 from .manager import DataManager
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -9,9 +13,9 @@ async def lifespan(app: FastAPI):
     app.state.manager = DataManager()
     app.state.manager.setup_weapons_detector()
     processed_count = app.state.manager.run_full_pipeline()
-    print(f"Processed {processed_count} tweets successfully during startup")
+    logger.info(f"Processed {processed_count} tweets successfully during startup")
     yield
-    print("Shutting down application...")
+    logger.info("Shutting down application...")
 
 app = FastAPI(
     title="Malicious Text Detection API",
@@ -35,6 +39,7 @@ async def get_all_tweets(request: Request):
     try:
         return request.app.state.manager.search_tweets({"match_all": {}})
     except Exception as e:
+        logger.error(f"Error retrieving tweets: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error retrieving tweets: {str(e)}")
 
 @app.get("/tweets/multiple-weapons", response_model=List[Dict[str, Any]])
@@ -55,6 +60,7 @@ async def get_tweets_with_multiple_weapons(request: Request):
         }
         return request.app.state.manager.search_tweets(query)
     except Exception as e:
+        logger.error(f"Error retrieving tweets with multiple weapons: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error retrieving tweets with multiple weapons: {str(e)}")
 
 # def main():
