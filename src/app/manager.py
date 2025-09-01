@@ -35,7 +35,7 @@ class DataManager:
         if self.weapons_detector and updated_data:
             weapons_enriched = self.weapons_detector.detect_weapons(updated_data)
             self.es_crud.index_data(weapons_enriched)
-        self.es_crud.delete_data(config.DELETE_QUERY)
+            self.es_crud.delete_data(config.DELETE_QUERY)
         return len(tweets_data)
 
     def setup_weapons_detector(self):

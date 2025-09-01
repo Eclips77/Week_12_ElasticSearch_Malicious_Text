@@ -45,7 +45,6 @@ ES_MAPPING = {
 }
 
 DELETE_QUERY = {
-            "query": {
                 "bool": {
                     "must": [
                         {"term": {"Antisemitic": False}},
@@ -54,4 +53,4 @@ DELETE_QUERY = {
                     ]
                 }
             }
-        }
+        
