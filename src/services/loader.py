@@ -1,6 +1,6 @@
 import csv
 from elasticsearch import helpers, Elasticsearch
-from src.utils import config
+from ..utils import config
 
 
 class DataLoader:
