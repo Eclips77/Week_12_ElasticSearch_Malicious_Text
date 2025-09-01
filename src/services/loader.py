@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 class DataLoader:
     """"
-
+    DataLoader class for loading CSV and TXT files.
     """
     @staticmethod
     def load_data(file_path:str)-> pd.DataFrame:
