@@ -3,6 +3,7 @@ from ..utils import config
 from ..services.es_crud import ESCrud
 from ..services.sentimenter import SentimentEnhancer
 from ..services.weapon_finder import WeaponsDetector
+from ..utils.cleaner import Preprocessor
 
 class DataManager:
     def __init__(self):
@@ -12,7 +13,7 @@ class DataManager:
 
     def run_full_pipeline(self):
         tweets_data = DataLoader.load_csv(config.CSV_FILE_PATH)
-        
+        tweets_data = Preprocessor.normalize_antisemitic(tweets_data)
         self.es_crud.create_index()
         indexed_count = self.es_crud.index_data(tweets_data)
         
