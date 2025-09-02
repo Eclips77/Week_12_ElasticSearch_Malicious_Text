@@ -1,24 +1,26 @@
-from elasticsearch import Elasticsearch,helpers
+from elasticsearch import Elasticsearch, helpers
 from ..utils import config
 from .es_client import ESClient
 import logging
-import pandas as pd
-from ..utils.loader import DataLoader
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-class ESCrud():
-    """"
-    crud operations for Elasticsearch index management.
+
+
+class ESCrud:
     """
+    CRUD operations for Elasticsearch index management.
+    """
+
     def __init__(self):
         self.es = ESClient().es
         self.index = config.ES_INDEX
         self.mapping = config.ES_MAPPING
 
     def create_index(self):
-        """"
-        Create an Elasticsearch index with the specified mapping."""
+        """
+        Create an Elasticsearch index with the specified mapping.
+        """
         try:
             if not self.es.indices.exists(index=self.index):
                 self.es.indices.create(index=self.index, body=self.mapping)
@@ -27,74 +29,75 @@ class ESCrud():
                 logger.info(f"Index '{self.index}' already exists.")
         except Exception as e:
             logger.error(f"Error creating index '{self.index}': {e}")
-    
-    def index_data(self,data:pd.DataFrame):
-        """"
-        Index data into the Elasticsearch index."""
+
+    def index_data(self, data: list[dict]):
+        """
+        Index a batch of documents into Elasticsearch.
+        If a document already has an '_id', it will overwrite the existing document.
+        Otherwise, Elasticsearch will generate a new '_id'.
+        """
         try:
-            actions = [
-                {
+            actions = []
+            for record in data:
+                action = {
                     "_index": self.index,
                     "_source": record
                 }
-                for record in data.to_dict(orient='records')
-            ]
-            helpers.bulk(self.es, actions)
-            logger.info(f"Indexed {len(actions)} records into '{self.index}'.")
+                if "_id" in record:
+                    action["_id"] = record["_id"]
+                    record.pop("_id", None)
+                actions.append(action)
+
+            response = helpers.bulk(
+                self.es,
+                actions,
+                refresh=True,
+                raise_on_error=False,
+                raise_on_exception=False
+            )
+            success_count = response[0]
+            failed_items = response[1]
+
+            if failed_items and isinstance(failed_items, list):
+                logger.error(f"Failed to index {len(failed_items)} documents")
+                for item in failed_items[:5]:
+                    logger.error(f"Error detail: {item}")
+
+            logger.info(f"Successfully indexed {success_count} records into '{self.index}'.")
+            return success_count
         except Exception as e:
             logger.error(f"Error indexing data into '{self.index}': {e}")
+            return 0
 
-    def update_data(self,field_name:str,update_value:str,query_value:str):
+    def delete_data(self, query: dict):
         """
-        a method to update data in elastic."""
+        Delete data from the Elasticsearch index based on a query.
+        """
         try:
-            script = {
-                "source": f"ctx._source.{field_name} = params.value",
-                "lang": "painless",
-                "params": {"value": update_value}
-            }
-            query = {
-                "query": {
-                    "match": {
-                        field_name: query_value
-                    }
-                }
-            }
-            response = self.es.update_by_query(index=self.index, body={**query, "script": script})
-            logger.info(f"Updated {response['updated']} records in '{self.index}'.")
+            response = self.es.delete_by_query(index=self.index, body={"query": query})
+            deleted = response.get('deleted', 0)
+            logger.info(f"Deleted {deleted} records from '{self.index}'.")
         except Exception as e:
-            logger.error(f"Error updating data in '{self.index}': {e}")
+            logger.error(f"Error deleting data from '{self.index}': {e}")
 
-    def delete_data(self):
+    def search_data(self, query: dict, size: int = 10000) -> list[dict]:
         """
-         a method to delete data in elastic."""
-        pass
-    def read_data(self)->pd.DataFrame:
+        Search for documents in Elasticsearch.
+        Returns both _id and _source for each document.
         """
-        a method to read data from elastic."""
         try:
-            response = self.es.search(index=self.index, body={"query": {"match_all": {}}})
-            hits = response['hits']['hits']
-            data = [hit['_source'] for hit in hits]
-            df = pd.DataFrame(data)
-            logger.info(f"Read {len(df)} records from {self.index}.")
-            return df
+            if not query:
+                query = {"match_all": {}}
+
+            response = self.es.search(
+                index=self.index,
+                body={"query": query},
+                size=size
+            )
+            hits = response.get('hits', {}).get('hits', [])
+            results = [{"_id": hit["_id"], **hit["_source"]} for hit in hits]
+            logger.info(f"Found {len(results)} records in '{self.index}'.")
+            return results
         except Exception as e:
-            logger.error(f"Error reading data from '{self.index}': {e}")
-            return pd.DataFrame()
-        
-    def search_data(self):
-        """
-        a method to search a specific data in elastic."""
-        pass
-
-
-
-
-if __name__ == "__main__":
-    es_crud = ESCrud()
-    data = DataLoader().load_from_csv(config.CSV_FILE_PATH)
-    es_crud.create_index()
-    es_crud.index_data(data)
-    # es = ESClient().es
-    # print(es.info())
+            logger.error(f"Error searching data in '{self.index}': {e}")
+            return []
