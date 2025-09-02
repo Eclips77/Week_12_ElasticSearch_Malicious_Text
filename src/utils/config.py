@@ -9,9 +9,6 @@ CSV_FILE_PATH = os.path.join(DATA_DIR, "tweets3.csv")
 WEAPONS_FILE_PATH = os.path.join(DATA_DIR, "weapon_list.txt")
 
 
-CSV_FILE_PATH = os.getenv("CSV_PATH","data/tweets3.csv")
-# WEAPONS_FILE_PATH = os.getenv("WEAPONS_PATH","C:/Users/brdwn/Desktop/my_projects/Python/Elastic/Week_12_ElasticSearch_Malicious_Text/data/weapon_list (1).txt")
-
 ES_HOST = os.getenv("ES_HOST","http://elasticsearch:9200")
 
 ES_INDEX = os.getenv("ES_INDEX","tweets")
